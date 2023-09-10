@@ -1,0 +1,56 @@
+#!/bin/bash
+
+init_vault() {
+  response=$(curl --request POST --data '{"secret_shares": 1, "secret_threshold": 1}' http://127.0.0.1:8200/v1/sys/init)
+
+  keys=$(echo "$response" | jq -r '.keys[0]')
+  keys_base64=$(echo "$response" | jq -r '.keys_base64[0]')
+  root_token=$(echo "$response" | jq -r '.root_token')
+
+  echo "VAULT_KEYS=\"$keys\"" > init_values.txt
+  echo "VAULT_KEYS_BASE64=\"$keys_base64\"" >> init_values.txt
+  echo "VAULT_TOKEN=\"$root_token\"" >> init_values.txt
+
+  echo "Vault initialized. Generated values stored in init_values.txt."
+}
+
+start_vault() {
+  docker-compose up -d
+}
+
+stop_vault() {
+  docker-compose down
+}
+
+unseal_vault() {
+  curl_response=$(curl --request POST --data '{"key": "VAULT_KEYS_BASE64_VALUE_HERE"}' http://127.0.0.1:8200/v1/sys/unseal)
+  unseal_status=$(echo "$curl_response" | jq -r '.sealed')
+
+  if [ "$unseal_status" == "false" ]; then
+    echo "Vault is now unsealed."
+  else
+    echo "Vault is still sealed."
+  fi  
+}
+
+if [ "$1" = "start" ]; then
+  if [[ -n $(docker ps | grep vault) ]]; then
+  echo 'Ending the current vault process'
+  stop_vault
+  echo 'Vault stopped'
+  fi
+  echo 'Starting Vault'
+  start_vault
+  echo 'Vault started'
+elif [ "$1" = "stop" ]; then
+  echo 'Stopping Vault'
+  stop_vault
+  echo 'Vault stopped'
+elif [ "$1" = "init" ]; then
+  echo 'Intializing Vault'
+  init_vault
+elif [ "$1" = "unseal" ]; then
+  unseal_vault
+else
+  echo 'Provide one of the following options: start, stop, unseal, or init'
+fi
