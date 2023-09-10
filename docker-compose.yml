@@ -1,0 +1,13 @@
+version: '3'
+services:
+  vault:
+    image: vault:1.13.3
+    container_name: vault
+    ports:
+    - "8200:8200" # Vault HTTP
+    volumes:
+      - ./config:/vault/config # Mount a directory for Vault config files
+      - ./data:/vault/data     # Mount a directory for Vault data storage
+    cap_add:
+      - IPC_LOCK
+    entrypoint: ["vault", "server", "-config=/vault/config/vault.hcl"]
