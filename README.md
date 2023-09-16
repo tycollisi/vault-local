@@ -43,7 +43,7 @@ Before you can use this repository, ensure you have the following prerequisites 
 4. Run `./vault init`: This will create `init_values.txt` in your directory which will contain your Vault Token and Unseal Key (VAULT_KEYS_BASE64).
 - `VAULT_TOKEN`: This will be used to authenticate to Vault.
 - `VAULT_KEYS_BASE64`: This key is needed to unseal Vault and we will be adding it to our Vault bash script in the next step.
-5. In  the `vault` script replace under the unseal_vault() function, replace `VAULT_KEYS_BASE64_VALUE_HERE` with the value found in `init_values.txt`
+5. In  the `vault` script under the unseal_vault() function, replace `VAULT_KEYS_BASE64_VALUE_HERE` with the value found in `init_values.txt`
 - Note: There are other (more secure) methods to go about this.
 6. Run `./vault unseal`
 7. You should now be able to authenticate to Vault using the `VAULT_TOKEN` value found in `init_values.txt`.
